@@ -2,7 +2,11 @@ import express, { response } from "express";
 import cors from "cors";
 import { search, searchWithAudio } from "./ai_api.js";
 import { transcribe } from "./speech_api.js";
+import { Server } from "socket.io";
+import { createServer } from "node:http";
 const app = express();
+const server = createServer(app);
+const io = new Server(server, { cors: { origin: "*" } });
 const router = express.Router();
 
 const corsOptions = {
@@ -62,6 +66,10 @@ router.route("/prompt/:prompt").get(async (req, res) => {
 
 app.use("/", router);
 
-app.listen(process.env.PORT, function () {
+io.on("connection", (socket) => {
+  console.log("a user connected");
+});
+
+server.listen(process.env.PORT, function () {
   console.log("Server running on port " + this.address().port);
 });
